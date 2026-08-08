@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarjoukset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,400&family=Manrope:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --canvas:#f0e8da; --bg:#f7f2e7; --surface:#ffffff; --border:#e9e1d0; --border2:#ddd0b5;
+  --text:#2b2620; --muted:#7a7262; --hint:#ada38c;
+  --accent:#e8834f; --accent-bg:#fdead9;
+  --green:#5a9153; --blue:#4b78ad; --amber:#c08a1f; --purple:#8c6bc2;
+  --mono:'DM Mono',monospace; --serif:'Fraunces',serif; --sans:'Manrope',system-ui,-apple-system,sans-serif;
+}
+body {
+  background:var(--canvas);
+  color:var(--text); font-family:var(--sans); font-size:14px; min-height:100vh;
+}
+
+/* ── SHELL: 3-column grid — gutter / centered main column / gutter.
+   The hero spans the full width and centers over the WHOLE shell, which
+   automatically lines it up with the middle column regardless of what
+   sits in the left gutter (the sidebar). ── */
+.shell {
+  display:grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 800px) minmax(220px, 1fr);
+  align-items:start; column-gap:26px; max-width:1500px; margin:0 auto; padding:0 28px 60px; position:relative;
+}
+.shell::before {
+  content:"Kampanjatarjoukset.fi"; grid-column:1 / -1; grid-row:1; text-align:center;
+  font-family:var(--serif); font-style:italic; font-weight:400; font-size:52px; letter-spacing:-0.01em; line-height:1;
+  color:var(--text);
+  padding:56px 20px 0;
+}
+.shell::after {
+  content:"Kaikki parhaat tarjoukset kauppojen viikkolehdistä, yhdestä paikasta"; grid-column:1 / -1; grid-row:2; text-align:center;
+  font-family:var(--sans); font-weight:500; font-size:16px; color:var(--muted); line-height:1.5;
+  max-width:520px; margin:0 auto; padding:14px 20px 28px;
+}
+
+/* ── SIDEBAR: pinned to the SAME grid row as .content below (see .main), so its
+   top edge lines up with the deals box, not with the search/sort row above it. ── */
+.sidebar {
+  grid-column:1; grid-row:6; justify-self:start; align-self:start; width:250px; display:flex; flex-direction:column; gap:16px;
+  position:sticky; top:22px; max-height:calc(100vh - 44px); overflow-y:auto;
+}
+.sidebar-logo { display:none; }
+
+.sidebar-section { background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:16px 18px; flex-shrink:0; }
+.sidebar-label { font-size:10.5px; font-weight:700; letter-spacing:0.05em; color:var(--muted); margin-bottom:9px; display:flex; align-items:center; justify-content:space-between; }
+.sidebar-toggle { font-size:10.5px; color:var(--accent); cursor:pointer; font-weight:600; }
+.sidebar-toggle:hover { text-decoration:underline; }
+
+.check-list { display:flex; flex-direction:column; gap:2px; }
+.check-item { display:flex; align-items:center; gap:8px; padding:5px 6px; border-radius:9px; transition:background 0.12s; position:relative; }
+.check-item:hover { background:var(--bg); }
+.check-item input[type="checkbox"] { width:14px; height:14px; accent-color:var(--accent); cursor:pointer; flex-shrink:0; }
+.check-name { font-size:12.5px; color:var(--text); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.check-count { font-family:var(--mono); font-size:10.5px; color:var(--hint); width:20px; text-align:right; }
+.only-btn {
+  position:absolute; right:6px; font-size:10px; color:var(--accent); cursor:pointer; font-weight:600;
+  opacity:0; transition:opacity 0.15s; padding:1px 6px; background:var(--surface); pointer-events:none;
+}
+.check-item:hover .only-btn { opacity:1; pointer-events:auto; }
+.check-item:hover .check-count { display:none; }
+.cat-dot { width:7px; height:7px; border-radius:50%; }
+
+/* Rename "Ruoka" → "Muu Ruoka" in the sidebar category list */
+.check-item:has(input[data-cat="food"]) .check-name { font-size:0; }
+.check-item:has(input[data-cat="food"]) .check-name::after { content:"Muu Ruoka"; font-size:12.5px; }
+
+/* Hardcode sidebar category order: Tuoretuotteet, Hedelmät & vihannekset, Muu Ruoka, Juomat, Puhtaus, Hygienia */
+#cat-list .check-item:has(input[data-cat="fresh"])    { order:1; }
+#cat-list .check-item:has(input[data-cat="produce"])  { order:2; }
+#cat-list .check-item:has(input[data-cat="food"])     { order:3; }
+#cat-list .check-item:has(input[data-cat="drinks"])   { order:4; }
+#cat-list .check-item:has(input[data-cat="cleaning"]) { order:5; }
+#cat-list .check-item:has(input[data-cat="hygiene"])  { order:6; }
+
+.check-item:has(input[data-store]) .check-name::before {
+  content:''; display:inline-block; width:15px; height:15px; margin-right:6px; vertical-align:-3px;
+  border-radius:4px; background:#fff center/contain no-repeat; box-shadow:0 0 0 1px var(--border2);
+}
+.check-item:has(input[data-store="K-Citymarket"])  .check-name::before { background-image:url("https://www.google.com/s2/favicons?domain=k-ruoka.fi&sz=32"); }
+.check-item:has(input[data-store="K-Supermarket"]) .check-name::before { background-image:url("https://www.google.com/s2/favicons?domain=k-ruoka.fi&sz=32"); }
+.check-item:has(input[data-store="Lidl"])          .check-name::before { background-image:url("https://www.google.com/s2/favicons?domain=lidl.fi&sz=32"); }
+.check-item:has(input[data-store="Tokmanni"])      .check-name::before { background-image:url("https://www.google.com/s2/favicons?domain=tokmanni.fi&sz=32"); }
+.check-item:has(input[data-store="Rusta"])         .check-name::before { background-image:url("https://www.google.com/s2/favicons?domain=rusta.com&sz=32"); }
+.check-item:has(input[data-store="Puuilo"])        .check-name::before { background-image:url("https://www.google.com/s2/favicons?domain=puuilo.fi&sz=32"); }
+
+.sidebar-footer { display:none; }
+
+/* ── MAIN: its own contained "deals" card ── */
+.main { display:contents; }
+
+.topbar { grid-column:2; grid-row:3; background:transparent; border-bottom:none; padding:18px 26px 12px; display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; }
+.search-wrap { position:relative; flex:1; min-width:150px; max-width:260px; }
+.search-wrap svg { position:absolute; left:12px; top:50%; transform:translateY(-50%); width:13px; height:13px; color:var(--hint); pointer-events:none; }
+.search-wrap input { width:100%; padding:8px 11px 8px 32px; border:1px solid var(--border2); border-radius:20px; background:var(--bg); color:var(--text); font-size:12.5px; font-family:inherit; outline:none; transition:border-color 0.15s; }
+.search-wrap input:focus { border-color:var(--accent); background:var(--surface); }
+.search-wrap input::placeholder { color:var(--hint); }
+.search-active .search-wrap input { border-color:var(--accent); background:var(--accent-bg); }
+.search-override-note { font-size:10.5px; color:var(--accent); display:none; }
+.search-active .search-override-note { display:inline; }
+
+.tb-group { display:flex; align-items:center; gap:10px; background:transparent; border:none; padding:0; }
+.tb-label { font-size:10.5px; color:var(--muted); white-space:nowrap; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; }
+
+.group-toggle { position:relative; display:inline-flex; background:var(--accent); border-radius:20px; padding:3px; gap:2px; box-shadow:0 3px 10px rgba(232,131,79,0.4); }
+.group-toggle::before {
+  content:''; position:absolute; top:3px; left:3px; width:calc(50% - 3px); height:calc(100% - 6px);
+  background:#fff; border-radius:16px; transition:transform 0.22s cubic-bezier(.4,0,.2,1); z-index:0;
+  box-shadow:0 1px 5px rgba(0,0,0,0.18);
+}
+.group-toggle:has(.group-toggle-btn[data-val="store"].active)::before { transform:translateX(100%); }
+.group-toggle-btn {
+  position:relative; z-index:1; border:none; background:transparent; padding:7px 18px; font-size:12.5px; font-weight:700;
+  color:rgba(255,255,255,0.8); cursor:pointer; border-radius:16px; transition:color 0.2s, transform 0.1s;
+  font-family:inherit; white-space:nowrap; box-shadow:none;
+}
+.group-toggle-btn.active { color:var(--accent); }
+.group-toggle-btn:not(.active):hover { color:#fff; }
+.group-toggle-btn:active { transform:scale(0.95); }
+
+.group-none-link { display:none; }
+
+.sel-group-native { display:none; }
+.tb-sep { display:none; }
+
+
+
+.status-pills { display:none; }
+
+.disc-bar { grid-column:2; grid-row:4; background:transparent; border-bottom:none; padding:0 26px 20px; display:flex; align-items:center; justify-content:center; gap:10px; }
+.disc-label { font-size:11px; color:var(--hint); white-space:nowrap; }
+.disc-slider-wrap { display:flex; align-items:center; gap:8px; flex:0 1 180px; }
+.disc-slider { -webkit-appearance:none; appearance:none; width:100%; height:4px; border-radius:2px; background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--pct, 22%), var(--border2) var(--pct, 22%), var(--border2) 100%); outline:none; cursor:pointer; }
+.disc-slider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:15px; height:15px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.3); }
+.disc-slider::-moz-range-thumb { width:15px; height:15px; border-radius:50%; background:var(--accent); cursor:pointer; border:2px solid #fff; }
+.disc-val { font-family:var(--mono); font-size:11.5px; font-weight:700; color:var(--accent); min-width:34px; }
+.disc-note { display:none; }
+.disc-bar.search-override .disc-slider-wrap { opacity:0.35; pointer-events:none; }
+
+.store-logo-wrap { width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,0.22), 0 0 0 2px #fff; }
+.store-logo-wrap.kcm { background:#ffffff; }
+.store-logo-wrap.ksm { background:#003087; }
+.store-logo { width:24px; height:24px; object-fit:contain; }
+
+.reset-btn {
+  position:absolute; left:28px; top:200px; z-index:2;
+  font-size:10.5px; color:var(--hint); cursor:pointer; padding:5px 11px; border-radius:20px; border:1px solid var(--border2);
+  background:var(--surface); transition:all 0.15s; white-space:nowrap; box-shadow:0 1px 4px rgba(43,38,32,0.06);
+}
+.reset-btn:hover { color:var(--accent); border-color:var(--accent); }
+
+.saved-counter {
+  display:flex; align-items:center; gap:6px; padding:8px 13px; border-radius:20px; border:1px solid var(--border2);
+  background:var(--surface); color:var(--muted); cursor:pointer; font-size:12.5px; font-weight:700; font-family:inherit;
+  transition:all 0.15s;
+}
+.saved-counter svg { flex-shrink:0; }
+.saved-counter.has-items { color:var(--accent); border-color:#f0c2a5; }
+.saved-counter.has-items svg { fill:var(--accent); }
+.saved-counter:hover { border-color:var(--accent); }
+.saved-counter.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.saved-counter.active svg { fill:#fff; }
+
+/* ── CONTENT: the "clear middle area" for deals, category order hardcoded ── */
+.content { grid-column:2; grid-row:6; padding:22px 26px 30px; flex:1; display:flex; flex-direction:column; background:var(--surface); border:1px solid var(--border); border-radius:22px; }
+
+.group-block { margin-bottom:32px; background:transparent; border:none; padding:0; }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-fresh)    { order:1; }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-produce)  { order:2; }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-food)     { order:3; }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-drinks)  { order:4; }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-cleaning) { order:5; }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-hygiene)  { order:6; }
+
+.group-header { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:13px; }
+.group-block { position:relative; }
+
+.show-all-btn {
+  font-family:var(--sans); font-size:10.5px; font-weight:700; color:var(--accent); background:none; border:none;
+  cursor:pointer; padding:2px 4px; text-decoration:underline; text-underline-offset:2px; margin-right:auto;
+}
+.show-all-btn:hover { color:#c86a35; }
+
+.scroll-hint-btn {
+  position:absolute; top:98px; transform:translateY(-50%);
+  border:none; cursor:pointer; background:none; box-shadow:none; border-radius:0; padding:0; width:auto; height:auto;
+  display:flex; align-items:center; justify-content:center;
+  font-size:42px; font-weight:800; line-height:1; color:#fff;
+  text-shadow:
+    -1.5px -1.5px 0 rgba(0,0,0,0.45), 1.5px -1.5px 0 rgba(0,0,0,0.45),
+    -1.5px 1.5px 0 rgba(0,0,0,0.45), 1.5px 1.5px 0 rgba(0,0,0,0.45),
+    0 4px 10px rgba(0,0,0,0.5);
+  opacity:0; pointer-events:none; transition:opacity 0.2s ease, transform 0.15s ease; z-index:6;
+}
+.scroll-hint-btn.scroll-next { right:-10px; }
+.scroll-hint-btn.scroll-prev { left:-10px; }
+.group-block.has-more .scroll-next { opacity:1; pointer-events:auto; }
+.group-block.has-prev .scroll-prev { opacity:1; pointer-events:auto; }
+.scroll-hint-btn:hover { transform:translateY(-50%) scale(1.18); }
+.group-block.expanded .scroll-hint-btn { display:none; }
+
+.group-block.expanded .deal-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(168px, 1fr)); gap:14px;
+  overflow-x:visible; scroll-snap-type:none; padding-right:2px;
+}
+
+.group-title { font-family:var(--sans); font-size:18px; font-weight:800; letter-spacing:-0.01em; color:var(--text); }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-food) .group-title { font-size:0; }
+#content[data-group-mode="cat"] .group-block:has(.deal-card.cat-food) .group-title::after { content:"Muu Ruoka"; font-size:18px; }
+
+.group-badge { font-family:var(--mono); font-size:10.5px; color:var(--hint); background:var(--bg); border:1px solid var(--border2); padding:2px 8px; border-radius:20px; }
+.leaflet-links { display:flex; gap:5px; align-items:center; }
+.leaflet-btn { font-size:10.5px; color:var(--blue); text-decoration:none; display:flex; align-items:center; gap:4px; padding:3px 9px; border:1px solid var(--border2); border-radius:20px; background:var(--bg); white-space:nowrap; }
+.leaflet-btn:hover { border-color:var(--blue); }
+
+.deal-grid { display:flex; gap:14px; overflow-x:auto; scroll-snap-type:x proximity; padding:2px 2px 12px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
+.deal-grid::-webkit-scrollbar { height:6px; }
+.deal-grid::-webkit-scrollbar-thumb { background:var(--border2); border-radius:10px; }
+
+.deal-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:0 0 13px; display:flex; flex-direction:column; gap:0;
+  transition:transform 0.18s, box-shadow 0.18s; position:relative; cursor:default;
+  flex:0 0 auto; width:196px; scroll-snap-align:start; overflow:visible;
+  box-shadow:0 1px 3px rgba(43,38,32,0.05);
+}
+.deal-card > .card-img-wrap { border-radius:20px 20px 0 0; overflow:hidden; }
+.deal-card:hover { transform:translateY(-4px); box-shadow:0 14px 28px -12px rgba(43,38,32,0.2); border-color:var(--border2); }
+.deal-card.clickable { cursor:pointer; }
+.deal-card.clickable:hover { border-color:var(--accent); }
+
+.deal-card.future { border-color:#e2d3f5; }
+
+.future-badge { display:inline-flex; align-items:center; gap:4px; font-size:9px; font-family:var(--sans); font-weight:800; padding:4px 9px; border-radius:8px; background:var(--purple); color:#fff; align-self:flex-start; letter-spacing:0.02em; position:absolute; top:10px; right:10px; z-index:3; }
+
+.card-top { display:flex; flex-direction:column; gap:5px; flex:1; padding:10px 13px 0; }
+
+.card-img-wrap { width:100%; height:120px; border-radius:0; overflow:hidden; background:#ffffff; margin-bottom:0; flex-shrink:0; display:flex; align-items:center; justify-content:center; padding:10px; position:relative; }
+.card-img-wrap img { width:100%; height:100%; object-fit:contain; object-position:center; }
+.card-img-placeholder { font-size:28px; opacity:0.35; }
+
+.disc-badge {
+  font-family:var(--sans); font-size:11px; font-weight:800; padding:4px 9px; border-radius:8px; white-space:nowrap;
+  letter-spacing:0.01em; position:absolute; top:10px; left:10px; z-index:3;
+  box-shadow:0 0 0 2px rgba(255,255,255,0.9), 0 3px 10px rgba(0,0,0,0.28);
+}
+.disc-high { background:#e5484d; color:#fff; }
+.disc-mid  { background:#a8690f; color:#fff; }
+.disc-low  { background:#fff; color:var(--muted); box-shadow:0 0 0 1.5px var(--border2), 0 2px 6px rgba(0,0,0,0.12); }
+
+.card-name { font-size:12px; font-weight:600; color:var(--text); line-height:1.35; flex:1; word-break:break-word; overflow-wrap:break-word; }
+
+.card-price { display:flex; align-items:baseline; gap:7px; flex-wrap:wrap; margin-top:auto; padding:2px 13px 0; }
+.price-now { font-family:var(--sans); font-weight:800; color:var(--text); line-height:1; display:inline-flex; align-items:flex-start; white-space:nowrap; }
+.price-euros { font-size:23px; line-height:1; font-family:var(--sans); }
+.price-cents-wrap { display:flex; flex-direction:column; justify-content:flex-start; margin-left:1px; padding-top:1px; }
+.price-cents { font-size:11.5px; font-weight:800; line-height:1.1; font-family:var(--sans); }
+.price-unit { font-family:var(--sans); font-size:9.5px; color:var(--muted); line-height:1.2; font-weight:600; }
+.price-was { font-family:var(--sans); font-size:11px; color:var(--hint); text-decoration:line-through; }
+.orig-price { font-family:var(--sans); font-size:10.5px; color:var(--muted); }
+.category-sale-label { font-size:10px; color:var(--muted); font-weight:600; }
+.prisma-ref { font-family:var(--sans); font-size:10px; color:var(--muted); }
+.bundle-pill { font-size:10px; color:var(--muted); background:var(--bg); border:1px solid var(--border2); padding:2px 6px; border-radius:6px; }
+
+.card-footer { display:flex; align-items:center; justify-content:space-between; gap:6px; padding:7px 13px 0; border-top:none; margin-top:6px; }
+.card-date { font-size:10px; color:var(--muted); font-family:var(--sans); font-weight:600; }
+.leaflet-icon { color:var(--hint); text-decoration:none; display:flex; align-items:center; padding:3px; border-radius:7px; transition:color 0.15s, background 0.15s; }
+.leaflet-icon:hover { color:var(--accent); background:var(--accent-bg); }
+
+/* Float the store badge over the bottom-right of the product photo, like a restaurant logo on a cover image */
+.deal-card .card-footer .store-logo-wrap { position:absolute; top:102px; right:12px; z-index:4; }
+
+.card-save-btn {
+  position:absolute; top:86px; left:10px; z-index:4; width:28px; height:28px; border-radius:50%; border:none; cursor:pointer;
+  background:rgba(255,255,255,0.92); box-shadow:0 2px 6px rgba(0,0,0,0.2); color:var(--muted);
+  display:flex; align-items:center; justify-content:center; transition:transform 0.15s, color 0.15s;
+}
+.card-save-btn:hover { transform:scale(1.1); color:var(--accent); }
+.card-save-btn.saved { color:#e5484d; }
+.card-save-btn.saved:hover { color:#c93f43; }
+
+.check-item.disabled { opacity:0.35; pointer-events:none; }
+.check-item.disabled input { cursor:not-allowed; }
+
+.filter-chips { grid-column:2; grid-row:5; display:flex; gap:6px; flex-wrap:wrap; align-items:center; padding:0 26px 16px; background:transparent; border-bottom:none; }
+.filter-chips:empty { display:none; }
+.filter-chip { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:3px 8px 3px 10px; border-radius:20px; background:var(--accent-bg); color:var(--accent); border:1px solid #f0c4a5; cursor:pointer; }
+.filter-chip svg { width:9px; height:9px; opacity:0.7; }
+
+.empty { text-align:center; padding:60px 20px; color:var(--hint); }
+.empty-icon { font-size:34px; margin-bottom:12px; }
+.loading { display:flex; align-items:center; justify-content:center; height:200px; color:var(--hint); font-size:13px; }
+
+.mob-toggle { display:none !important; }
+
+/* ── DEAL PREVIEW MODAL ── */
+body.modal-open { overflow:hidden; }
+.deal-modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(33,29,23,0.55); backdrop-filter:blur(3px);
+  z-index:200; align-items:center; justify-content:center; padding:24px;
+}
+.deal-modal-overlay.open { display:flex; }
+.deal-modal {
+  background:var(--surface); border-radius:20px; max-width:380px; width:100%; max-height:88vh; overflow-y:auto;
+  position:relative; box-shadow:0 24px 60px -12px rgba(0,0,0,0.4); animation:dealModalIn 0.18s ease;
+}
+@keyframes dealModalIn { from { transform:translateY(10px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+.deal-modal-close {
+  position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:50%; border:none;
+  background:rgba(43,38,32,0.06); color:var(--text); font-size:20px; line-height:1; cursor:pointer; z-index:2;
+  display:flex; align-items:center; justify-content:center; transition:background 0.15s;
+}
+.deal-modal-close:hover { background:rgba(43,38,32,0.12); }
+.deal-modal-img { width:100%; height:220px; background:#fff; border-radius:20px 20px 0 0; display:flex; align-items:center; justify-content:center; padding:20px; overflow:hidden; }
+.deal-modal-img img { width:100%; height:100%; object-fit:contain; }
+.deal-modal-body { padding:20px 22px 24px; }
+.deal-modal-meta { font-size:11.5px; color:var(--hint); font-weight:600; text-transform:uppercase; letter-spacing:0.03em; margin-bottom:8px; }
+.deal-modal-name { font-size:17px; font-weight:600; color:var(--text); line-height:1.35; margin-bottom:10px; }
+.deal-modal-price { margin-bottom:18px; }
+.deal-modal-price .price-euros { font-size:30px; }
+.deal-modal-cta {
+  display:flex; align-items:center; justify-content:center; gap:6px; width:100%; padding:13px 18px;
+  background:var(--accent); color:#fff; font-weight:700; font-size:14.5px; border-radius:14px; text-decoration:none;
+  transition:background 0.15s, transform 0.1s;
+}
+.deal-modal-cta:hover { background:#c9713f; }
+.deal-modal-cta:active { transform:scale(0.98); }
+
+@media (max-width:900px) {
+  .shell { display:flex; flex-direction:column; padding:0 16px 40px; }
+  .shell::before { font-size:36px; padding:36px 16px 0; }
+  .shell::after { font-size:14px; padding:10px 16px 20px; }
+  .sidebar { width:100%; position:static; max-height:none; }
+  .main { width:100%; }
+  .reset-btn { position:static; margin-left:auto; box-shadow:none; }
+  .deal-modal { max-width:100%; }
+  .deal-modal-img { height:180px; }
+}
+
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:10px; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <h1>Tarjoukset</h1>
+      <div class="sub" id="run-date">ladataan...</div>
+    </div>
+
+    <!-- STORES -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">
+        Kaupat
+        <span class="sidebar-toggle" id="toggle-stores-btn">Poista kaikki</span>
+      </div>
+      <div class="check-list" id="store-list"></div>
+    </div>
+
+    <!-- CATEGORIES -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">
+        Kategoriat
+        <span class="sidebar-toggle" id="toggle-cats-btn">Poista kaikki</span>
+      </div>
+      <div class="check-list" id="cat-list"></div>
+    </div>
+
+    <div class="sidebar-footer" id="sidebar-footer">&nbsp;</div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar" id="topbar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><path d="M11 11l3 3"/></svg>
+        <input type="text" id="search" placeholder="Hae tuotetta..." oninput="onSearch()">
+      </div>
+      <span class="search-override-note">Hakee kaikki osumia</span>
+      <div class="tb-sep"></div>
+      <div class="status-pills">
+        <span class="status-pill active" id="pill-live" onclick="toggleStatus('live')">
+          <span class="dot dot-live"></span> Live
+        </span>
+        <span class="status-pill active" id="pill-tulossa" onclick="toggleStatus('tulossa')">
+          <span class="dot dot-tulossa"></span> Tulossa
+        </span>
+      </div>
+      <div class="tb-sep"></div>
+      <div class="tb-group">
+        <label class="tb-label" for="sel-group">Ryhmittely</label>
+        <div class="group-toggle">
+          <button type="button" class="group-toggle-btn active" data-val="cat" onclick="setGroupMode('cat')">Kategoria</button>
+          <button type="button" class="group-toggle-btn" data-val="store" onclick="setGroupMode('store')">Kauppa</button>
+        </div>
+        <span class="group-none-link" onclick="setGroupMode('none')">Ei ryhmittelyä</span>
+        <select id="sel-group" onchange="render()" class="sel-group-native">
+          <option value="cat">Kategoria</option>
+          <option value="store">Kauppa</option>
+          <option value="none">Ei ryhmittelyä</option>
+        </select>
+      </div>
+      <button type="button" class="saved-counter" id="saved-counter-wrap" onclick="toggleSavedFilter()" title="Näytä vain tallennetut">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <span id="saved-counter">0</span>
+      </button>
+      <button class="reset-btn" onclick="resetAll()">↺ Nollaa</button>
+    </div>
+
+    <!-- DISCOUNT SLIDER BAR -->
+    <div class="disc-bar" id="disc-bar">
+      <span class="disc-label">Min. alennus:</span>
+      <div class="disc-slider-wrap">
+        <input type="range" class="disc-slider" id="disc-slider" min="0" max="60" value="20" oninput="onSlider(this.value)">
+      </div>
+      <span class="disc-val" id="disc-val">-20%</span>
+      <span class="disc-note" id="disc-note"></span>
+    </div>
+
+    <!-- ACTIVE FILTER CHIPS -->
+    <div class="filter-chips" id="filter-chips"></div>
+
+    <!-- STATS -->
+    <div class="content" id="content">
+      <div class="loading">Ladataan tarjouksia...</div>
+    </div>
+  </div>
+</div>
+<button class="mob-toggle" id="mob-btn" onclick="toggleSidebar()">☰</button>
+
+<div class="deal-modal-overlay" id="deal-modal" onclick="if(event.target===this) closeDealModal()">
+  <div class="deal-modal">
+    <button type="button" class="deal-modal-close" onclick="closeDealModal()" aria-label="Sulje">&times;</button>
+    <div class="deal-modal-img"></div>
+    <div class="deal-modal-body">
+      <div class="deal-modal-meta"></div>
+      <div class="deal-modal-name"></div>
+      <div class="deal-modal-price"></div>
+      <a class="deal-modal-cta" id="deal-modal-cta" href="#" target="_blank" rel="noopener">Avaa tarjouslehti &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+
+// Fixed display order for stores
+const STORE_ORDER = ["K-Citymarket","K-Supermarket","Lidl","Tokmanni","Rusta","Puuilo"];
+
+const STORE_ABBR = {
+  "K-Citymarket":  "KCM",
+  "K-Supermarket": "KSM",
+  "Lidl":          "Lidl",
+  "Tokmanni":      "Tok",
+  "Rusta":         "Rusta",
+  "Puuilo":        "Puuilo",
+};
+
+const TOKMANNI_LOGO = 'data:image/png;base64,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';
+
+const STORE_DOMAIN = {
+  "K-Citymarket":  "k-ruoka.fi",
+  "K-Supermarket": "k-ruoka.fi",
+  "Lidl":          "lidl.fi",
+  "Tokmanni":      "tokmanni.fi",
+  "Rusta":         "rusta.com",
+  "Puuilo":        "puuilo.fi",
+};
+
+const STORE_SIDEBAR = {
+  "K-Citymarket":  "K-Citymarket",
+  "K-Supermarket": "K-Supermarket",
+  "Lidl":          "Lidl",
+  "Tokmanni":      "Tokmanni",
+  "Rusta":         "Rusta",
+  "Puuilo":        "Puuilo",
+};
+
+// Raw store name → display name (merges Tokmanni variants)
+const STORE_DISPLAY = {
+  "K-Citymarket":     "K-Citymarket",
+  "K-Supermarket":    "K-Supermarket",
+  "Lidl":             "Lidl",
+  "Tokmanni Ruoka":    "Tokmanni",
+  "Tokmanni Yleinen":  "Tokmanni",
+  "Tokmanni Food":     "Tokmanni",
+  "Tokmanni General":  "Tokmanni",
+  "Rusta":            "Rusta",
+  "Puuilo":           "Puuilo",
+};
+
+// Leaflet links per display store
+const STORE_LEAFLETS = {
+  "K-Citymarket":  [{ label:"Avaa lehti", url:"https://kcm-tarjouslehdet.k-ruoka.fi/" }],
+  "K-Supermarket": [{ label:"Avaa lehti", url:"https://ksm-lehdet.k-ruoka.fi/Uusimaa/" }],
+  "Lidl":          [{ label:"Avaa lehti", url:"https://www.lidl.fi/c/tarjouslehdet/s10019134" }],
+  "Tokmanni":      [
+    { label:"Ruoka",   url:"https://tarjoussanomat.tokmanni.fi/Ruokasanomat/" },
+    { label:"Yleinen", url:"https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/" }
+  ],
+  "Rusta":  [{ label:"Avaa lehti", url:"https://view.publitas.com/rusta-kuvasto/" }],
+  "Puuilo": [{ label:"Avaa lehti", url:"https://kampanjat.puuilo.fi/" }],
+};
+
+// Category config — add pet/baby here later
+const CAT_CONFIG = [
+  { id:"fresh",    label:"Tuoretuotteet", dot:"dot-fresh",    icon:"🥩" },
+  { id:"produce",  label:"Hedelmät & vihannekset", dot:"dot-produce",  icon:"🍎" },
+  { id:"food",     label:"Ruoka",         dot:"dot-food",     icon:"🍴" },
+  { id:"drinks",   label:"Juomat",        dot:"dot-drinks",   icon:"🧋" },
+  { id:"hygiene",  label:"Hygienia",      dot:"dot-hygiene",  icon:"🧴" },
+  { id:"cleaning", label:"Puhtaus",       dot:"dot-cleaning", icon:"🧹" },
+];
+
+const DISC_STEPS = [5,10,20,30,40];
+const DEFAULT_DISC = 20;
+
+// ── STATE ──
+let ALL_DEALS = [];
+let activeStores = new Set(STORE_ORDER);
+let allStores = [];
+let activeCats = CAT_CONFIG.map(c => c.id);
+let minDiscount  = DEFAULT_DISC;
+let botThreshold = 22;
+let searchActive = false;
+let showLive = true;
+let showTulossa = true;
+let savedDeals = new Set();
+let showOnlySaved = false;
+function dealKey(d) {
+  const s = `${d.name}|${d.store}|${d.price}|${d.validity}`;
+  let hash = 0;
+  for (let i = 0; i < s.length; i++) { hash = ((hash << 5) - hash + s.charCodeAt(i)) | 0; }
+  return hash;
+}
+const today = new Date(); today.setHours(0,0,0,0);
+
+// ── DATE PARSING ──
+// Parses Finnish date strings like "21.4.", "Ma-Su 21.-27.4.", "To-Su 24.-27.4."
+// Returns { start: Date|null, end: Date|null }
+function parseValidity(val) {
+  if (!val) return { start: null, end: null, isAsti: false };
+  const year = today.getFullYear();
+  const isAsti = /asti/i.test(val);
+
+  // Strip 4-digit years (e.g. "27.4.-3.5.2026" → "27.4.-3.5.")
+  // and normalise en-dash to hyphen
+  val = val.replace(/\.20\d{2}/g, '.').replace(/–/g, '-').trim();
+
+  // Try range with shared month first: "28.-30.4."
+  // Must come before generic dd.mm. matching or "30.4." gets picked up alone
+  // Same-month range only: "28.-30.4." where first day has no month attached
+  // Skip entirely if the string already has two full dd.mm. dates (cross-month range)
+  const fullDates = [...val.matchAll(/\d{1,2}\.\d{1,2}\./g)];
+  if (fullDates.length < 2) {
+    const rangeMatch = val.match(/(\d{1,2})\.-(\d{1,2})\.(\d{1,2})\./);
+    if (rangeMatch) {
+      const month = parseInt(rangeMatch[3]) - 1;
+      const start = new Date(year, month, parseInt(rangeMatch[1]));
+      const end   = new Date(year, month, parseInt(rangeMatch[2]));
+      if (start <= end) return { start, end, isAsti };
+    }
+  }
+
+  // Find all dd.mm. patterns (4-digit years already stripped above)
+  const matches = [...val.matchAll(/(\d{1,2})\.(\d{1,2})\./g)];
+  if (matches.length === 0) return { start: null, end: null, isAsti };
+
+  if (matches.length === 1) {
+    const [, d, m] = matches[0];
+    const dt = new Date(year, parseInt(m)-1, parseInt(d));
+    return { start: isAsti ? today : dt, end: dt, isAsti };
+  }
+
+  // Multiple dates — first is start, last is end
+  const first = matches[0], last = matches[matches.length-1];
+  const start = new Date(year, parseInt(first[2])-1, parseInt(first[1]));
+  const end   = new Date(year, parseInt(last[2])-1,  parseInt(last[1]));
+  return { start, end, isAsti };
+}
+
+
+// Format a parsed date range into unified "MA 27.4. - SU 3.5." style
+const FI_DAYS = ["SU","MA","TI","KE","TO","PE","LA"];
+function formatDateRange(start, end, isAsti) {
+  if (!start && !end) return null;
+  const fmt = dt => `${FI_DAYS[dt.getDay()]} ${dt.getDate()}.${dt.getMonth()+1}.`;
+  if (isAsti) return `${fmt(end)} asti`;
+  if (!end || start.getTime() === end.getTime()) return fmt(start);
+  return `${fmt(start)} - ${fmt(end)}`;
+}
+// Returns 'past' | 'future' | 'active' | 'unknown'
+function dealStatus(deal) {
+  const { start, end } = deal._dates;
+  if (!start && !end) return 'unknown';
+  if (end && end < today) return 'past';
+  if (start && start > today) return 'future';
+  return 'active';
+}
+
+// ── LOAD ──
+fetch('deals.json')
+  .then(r => r.json())
+  .then(data => {
+    ALL_DEALS = (data.deals || []).map(d => {
+      const displayStore = STORE_DISPLAY[d.store] || d.store;
+      const _dates = parseValidity(d.validity);
+      // Normalise category aliases from bot
+      const CAT_ALIASES = { 'raw_meat':'fresh', 'meat':'fresh', 'fish':'fresh', 'vegetables':'produce', 'fruits':'produce', 'beverage':'drinks', 'beverage':'drinks' };
+      const category = CAT_ALIASES[d.category] || d.category;
+      return { ...d, displayStore, _dates, category };
+    });
+
+    botThreshold = data.threshold || 22;
+    activeStores = new Set(STORE_ORDER);
+    activeCats = CAT_CONFIG.map(c => c.id);
+
+    if (data.generated) {
+      const dt = new Date(data.generated);
+      document.getElementById('run-date').textContent =
+        dt.toLocaleDateString('fi-FI', {day:'numeric', month:'long', year:'numeric'});
+    }
+    document.getElementById('sidebar-footer').innerHTML =
+      `Kynnys: -${botThreshold}%+<br>${ALL_DEALS.length} tarjousta yhteensä`;
+
+    buildSidebar();
+    buildCatList();
+    initSlider();
+    render();
+  })
+  .catch(() => {
+    document.getElementById('content').innerHTML =
+      '<div class="empty"><div class="empty-icon">⚠</div><p>deals.json ei löydy. Aja botti ensin.</p></div>';
+  });
+
+// ── SIDEBAR: STORES ──
+function buildSidebar() {
+  const list = document.getElementById('store-list');
+  list.innerHTML = '';
+  // Only show stores that exist in data, but in fixed order
+  const presentStores = STORE_ORDER.filter(s =>
+    ALL_DEALS.some(d => d.displayStore === s)
+  );
+  const extra = [...new Set(ALL_DEALS.map(d => d.displayStore))].filter(s => !STORE_ORDER.includes(s));
+  allStores = [...presentStores, ...extra];
+  allStores.forEach(store => {
+    const count = ALL_DEALS.filter(d => d.displayStore === store && dealStatus(d) !== 'past').length;
+    const sid = store.replace(/[\s-]/g,'_');
+    const item = document.createElement('div');
+    item.className = 'check-item';
+    item.innerHTML = `
+      <input type="checkbox" checked data-store="${store}" onchange="toggleStore('${store}',this.checked)" onclick="event.stopPropagation()">
+      <span class="check-name" onclick="document.querySelector('[data-store=&quot;${store}&quot;]').click()">${STORE_SIDEBAR[store]||store}</span>
+      <span class="only-btn" onclick="event.stopPropagation();onlyStore('${store}');">only</span>
+      <span class="check-count" id="sc-${sid}">${count}</span>`;
+    list.appendChild(item);
+  });
+}
+
+function onlyStore(store) {
+  activeStores.clear();
+  activeStores.add(store);
+  document.querySelectorAll('[data-store]').forEach(cb => {
+    cb.checked = cb.dataset.store === store;
+  });
+  updateStoreToggleBtn(); render();
+}
+
+function onlyCat(cat) {
+  activeCats = [];
+  activeCats.push(cat);
+  document.querySelectorAll('[data-cat]').forEach(cb => {
+    cb.checked = cb.dataset.cat === cat;
+  });
+  updateCatToggleBtn(); render();
+}
+
+function toggleStore(store, checked) {
+  if (checked) activeStores.add(store); else activeStores.delete(store);
+  updateStoreToggleBtn(); render();
+}
+let storesAllOn = true;
+function updateStoreToggleBtn() {
+  const stores = [...document.querySelectorAll('[data-store]')].map(cb => cb.dataset.store);
+  storesAllOn = stores.every(s => activeStores.has(s));
+  document.getElementById('toggle-stores-btn').textContent = storesAllOn ? 'Poista kaikki' : 'Valitse kaikki';
+}
+document.getElementById('toggle-stores-btn').onclick = () => {
+  const cbs = document.querySelectorAll('[data-store]');
+  if (storesAllOn) { activeStores.clear(); cbs.forEach(cb => cb.checked=false); }
+  else { cbs.forEach(cb => { activeStores.add(cb.dataset.store); cb.checked=true; }); }
+  storesAllOn = !storesAllOn;
+  document.getElementById('toggle-stores-btn').textContent = storesAllOn ? 'Poista kaikki' : 'Valitse kaikki';
+  render();
+};
+
+// ── SIDEBAR: CATEGORIES ──
+function buildCatList() {
+  const list = document.getElementById('cat-list');
+  list.innerHTML = '';
+  CAT_CONFIG.forEach(cat => {
+    const count = ALL_DEALS.filter(d => d.category === cat.id && dealStatus(d) !== 'past').length;
+    const item = document.createElement('div');
+    item.className = 'check-item';
+    item.innerHTML = `
+      <input type="checkbox" checked data-cat="${cat.id}" onchange="toggleCat('${cat.id}',this.checked)" onclick="event.stopPropagation()">
+      <span style="font-size:13px;line-height:1;">${cat.icon}</span>
+      <span class="check-name" onclick="document.querySelector('[data-cat=${cat.id}]').click()">${cat.label}</span>
+      <span class="only-btn" onclick="event.stopPropagation();onlyCat('${cat.id}');">only</span>
+      <span class="check-count" id="cc-${cat.id}">${count}</span>`;
+    list.appendChild(item);
+  });
+}
+
+function toggleCat(cat, checked) {
+  if (checked) { if (!activeCats.includes(cat)) activeCats.push(cat); } else activeCats = activeCats.filter(c => c !== cat);
+  updateCatToggleBtn(); render();
+}
+let catsAllOn = true;
+function updateCatToggleBtn() {
+  catsAllOn = CAT_CONFIG.every(c => activeCats.includes(c.id));
+  document.getElementById('toggle-cats-btn').textContent = catsAllOn ? 'Poista kaikki' : 'Valitse kaikki';
+}
+document.getElementById('toggle-cats-btn').onclick = () => {
+  const cbs = document.querySelectorAll('[data-cat]');
+  if (catsAllOn) { activeCats = []; cbs.forEach(cb => cb.checked=false); }
+  else { activeCats = CAT_CONFIG.map(c => c.id); cbs.forEach(cb => cb.checked=true); }
+  catsAllOn = !catsAllOn;
+  document.getElementById('toggle-cats-btn').textContent = catsAllOn ? 'Poista kaikki' : 'Valitse kaikki';
+  render();
+};
+
+// ── DISCOUNT SLIDER ──
+function onSlider(val) {
+  minDiscount = parseInt(val);
+  const pct = (minDiscount / 60) * 100;
+  const slider = document.getElementById('disc-slider');
+  slider.style.setProperty('--pct', pct + '%');
+  document.getElementById('disc-val').textContent = `-${minDiscount}%`;
+  updateDiscNote();
+  render();
+}
+
+function initSlider() {
+  const slider = document.getElementById('disc-slider');
+  slider.value = minDiscount;
+  const pct = (minDiscount / 60) * 100;
+  slider.style.setProperty('--pct', pct + '%');
+  document.getElementById('disc-val').textContent = `-${minDiscount}%`;
+  updateDiscNote();
+}
+
+function updateDiscNote() {
+  const note = document.getElementById('disc-note');
+  if (searchActive) {
+    note.textContent = 'Haku ohittaa % kynnyksen';
+  } else if (minDiscount < botThreshold) {
+    note.textContent = `Botti haki vain -${botThreshold}%+, ei näyttöä tätä pienemmistä`;
+  } else {
+    note.textContent = '';
+  }
+}
+
+// ── STATUS TOGGLES ──
+function toggleStatus(type) {
+  if (type === 'live') {
+    showLive = !showLive;
+    document.getElementById('pill-live').classList.toggle('active', showLive);
+  } else {
+    showTulossa = !showTulossa;
+    document.getElementById('pill-tulossa').classList.toggle('active', showTulossa);
+  }
+  render();
+}
+
+// ── SEARCH ──
+function onSearch() {
+  const q = document.getElementById('search').value.trim();
+  searchActive = q.length > 0;
+  const topbar  = document.getElementById('topbar');
+  const discBar = document.getElementById('disc-bar');
+  if (searchActive) {
+    topbar.classList.add('search-active');
+    discBar.classList.add('search-override');
+  } else {
+    topbar.classList.remove('search-active');
+    discBar.classList.remove('search-override');
+  }
+  updateDiscNote();
+  render();
+}
+
+// ── RESET ──
+function resetAll() {
+  // Stores
+  allStores.forEach(s => activeStores.add(s));
+  document.querySelectorAll('[data-store]').forEach(cb => cb.checked = true);
+  updateStoreToggleBtn();
+  // Cats
+  activeCats = CAT_CONFIG.map(c => c.id);
+  document.querySelectorAll('[data-cat]').forEach(cb => cb.checked = true);
+  updateCatToggleBtn();
+  // Discount
+  minDiscount = DEFAULT_DISC;
+  initSlider();
+  // Search
+  document.getElementById('search').value = '';
+  searchActive = false;
+  document.getElementById('topbar').classList.remove('search-active');
+  document.getElementById('disc-bar').classList.remove('search-override');
+  // Status
+  showLive = true; showTulossa = true;
+  document.getElementById('pill-live').classList.add('active');
+  document.getElementById('pill-tulossa').classList.add('active');
+  // Saved filter (view only — keeps the saved items themselves intact)
+  showOnlySaved = false;
+  document.getElementById('saved-counter-wrap').classList.remove('active');
+  // Group
+  syncGroupUI('cat');
+  render();
+}
+
+function syncGroupUI(val) {
+  document.getElementById('sel-group').value = val;
+  document.querySelectorAll('.group-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.val === val));
+}
+function setGroupMode(val) {
+  syncGroupUI(val);
+  render();
+}
+
+// ── FILTER ──
+function getFiltered() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  return ALL_DEALS.filter(d => {
+    const status = dealStatus(d);
+    if (status === 'past') return false;
+    if (status === 'active' && !showLive) return false;
+    if (status === 'future' && !showTulossa) return false;
+    if (!activeStores.has(d.displayStore)) return false;
+    if (!activeCats.includes(d.category)) return false;
+    if (showOnlySaved && !savedDeals.has(dealKey(d))) return false;
+    if (searchActive) return q ? d.name.toLowerCase().includes(q) : true;
+    const effectiveDisc = d.discount_percent_max || d.discount_percent || 0;
+    if (effectiveDisc < minDiscount) return false;
+    if (q && !d.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function getSorted(deals) {
+  return [...deals].sort((a,b) => {
+    const da = a.discount_percent_max || a.discount_percent || 0;
+    const db = b.discount_percent_max || b.discount_percent || 0;
+    return db - da;
+  });
+}
+
+function getGrouped(deals) {
+  const g = document.getElementById('sel-group').value;
+  if (g==='none') return {'':deals};
+  const map={};
+  deals.forEach(d=>{
+    const key = g==='store' ? d.displayStore
+              : g==='date'  ? (d.validity||'Ei päiväystä')
+              : (CAT_CONFIG.find(c=>c.id===d.category)?.label || d.category);
+    (map[key]=map[key]||[]).push(d);
+  });
+  // For store grouping, return in fixed order
+  if (g==='store') {
+    const ordered={};
+    [...STORE_ORDER, ...Object.keys(map).filter(k=>!STORE_ORDER.includes(k))].forEach(k=>{
+      if(map[k]) ordered[k]=map[k];
+    });
+    return ordered;
+  }
+  return map;
+}
+
+// ── STATS ──
+function updateStats(deals) {
+  // Sidebar counts + disable items with 0 results
+  const storeSub={}, catSub={};
+  deals.forEach(d=>{
+    storeSub[d.displayStore]=(storeSub[d.displayStore]||0)+1;
+    catSub[d.category]=(catSub[d.category]||0)+1;
+  });
+  document.querySelectorAll('[data-store]').forEach(cb=>{
+    const s=cb.dataset.store;
+    const el=document.getElementById('sc-'+s.replace(/[\s-]/g,'_'));
+    const count = storeSub[s]||0;
+    if(el) el.textContent=count;
+    const item = cb.closest('.check-item');
+    if(item) item.classList.toggle('disabled', count===0 && activeStores.has(s));
+  });
+  CAT_CONFIG.forEach(c=>{
+    const el=document.getElementById('cc-'+c.id);
+    const count = catSub[c.id]||0;
+    if(el) el.textContent=count;
+    const cb = document.querySelector(`[data-cat="${c.id}"]`);
+    if(cb) cb.closest('.check-item').classList.toggle('disabled', count===0 && activeCats.includes(c.id));
+  });
+
+  // Active filter chips — show what IS selected (inclusions), not exclusions
+  const chips = document.getElementById('filter-chips');
+  chips.innerHTML = '';
+  const ICO_X = `<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l6 6M8 2l-6 6"/></svg>`;
+
+  const allStoresList = [...document.querySelectorAll('[data-store]')].map(cb => cb.dataset.store);
+  const someStoresOff = allStoresList.some(s => !activeStores.has(s));
+  const allStoresOff = allStoresList.every(s => !activeStores.has(s));
+
+  // Only show store chips if not all selected
+  if (someStoresOff && !allStoresOff) {
+    [...activeStores].forEach(s => {
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip';
+      chip.innerHTML = `Kauppa: ${s} ${ICO_X}`;
+      chip.onclick = () => { activeStores.delete(s); document.querySelector(`[data-store="${s}"]`).checked = false; updateStoreToggleBtn(); render(); };
+      chips.appendChild(chip);
+    });
+  }
+
+  // Only show category chips if not all selected
+  const someCatsOff = CAT_CONFIG.some(c => !activeCats.includes(c.id));
+  if (someCatsOff) {
+    CAT_CONFIG.filter(c => activeCats.includes(c.id)).forEach(c => {
+      const chip = document.createElement('span');
+      chip.className = 'filter-chip';
+      chip.innerHTML = `${c.icon} ${c.label} ${ICO_X}`;
+      chip.onclick = () => { activeCats = activeCats.filter(id => id !== c.id); document.querySelector(`[data-cat="${c.id}"]`).checked = false; updateCatToggleBtn(); render(); };
+      chips.appendChild(chip);
+    });
+  }
+}
+
+// ── CARD ──
+function discClass(p){ return p>=40?'disc-high':p>=30?'disc-mid':'disc-low'; }
+
+// Build a page image URL from leaflet_url + page_number for KCM/Lidl crop rendering
+function pageImageUrl(leafletUrl, pageNum) {
+  if (!leafletUrl || !pageNum) return null;
+  const pg = parseInt(pageNum) || 1;
+  // KCM/KSM FlippingBook: slug/files/large/{pg}.jpg
+  if (leafletUrl.includes('kcm-tarjouslehdet') || leafletUrl.includes('ksm-lehdet')) {
+    const base = leafletUrl.replace(/\/index\.html.*$/, '').replace(/#.*$/,'');
+    return `${base}/files/large/${pg}.jpg`;
+  }
+  // Lidl: the leaflet_url ends with /view/flyer/page/ — no direct image URL available from it
+  // Crop rendering is skipped for Lidl (we use image_url from API instead)
+  return null;
+}
+
+function renderCardImage(d, leafletUrl) {
+  const catIcon = CAT_CONFIG.find(c=>c.id===d.category)?.icon || '📦';
+
+  // 1. Direct image URL from Open Food Facts or Lidl page thumbnail
+  if (d.image_url) {
+    return `<div class="card-img-wrap">
+      <img src="${d.image_url}" alt="${d.name}" loading="lazy" onerror="this.parentNode.innerHTML='<span class=card-img-placeholder>${catIcon}</span>'">
+    </div>`;
+  }
+
+  // 2. No image — show category emoji placeholder
+  return `<div class="card-img-wrap">
+    <span class="card-img-placeholder">${catIcon}</span>
+  </div>`;
+}
+
+function cardHTML(d) {
+  const status = dealStatus(d);
+  const n  = (d.bundle_count>1)?d.bundle_count:1;
+  const dp = d.bundle_total ? d.bundle_total : (d.price*n);
+  const od = d.original_price ? (d.original_price*n).toFixed(2) : null;
+  // Build deep link URL with page anchor when available
+  const baseUrl = (d.leaflet_url && d.leaflet_url !== 'null') ? d.leaflet_url : ((STORE_LEAFLETS[d.displayStore]||[])[0]?.url || '#');
+  const pg = d.page_number;
+  let lf = baseUrl || '#';
+  if (pg && lf !== '#') {
+    if (lf.includes('kcm-tarjouslehdet') || lf.includes('ksm-lehdet')) {
+      lf = lf.replace(/#.*$/, '') + `#p=${pg}`;
+    } else if (lf.includes('tokmanni')) {
+      lf = lf.replace(/[?#].*$/, '') + `?page=${pg}`;
+    } else if (lf.includes('publitas.com')) {
+      const p1 = pg % 2 === 0 ? pg : pg - 1;
+      lf = lf.replace(/\/$/, '') + `/page/${p1 || 1}-${p1+1}`;
+    } else if (lf.includes('kampanjat.puuilo.fi')) {
+      const p1 = pg % 2 === 0 ? pg : pg - 1;
+      lf = lf.replace(/\/$/, '') + `/page/${p1 || 1}-${p1+1}`;
+    } else if (lf.includes('lidl.fi') && lf.includes('/view/flyer/page/')) {
+      lf = lf + pg;
+    }
+  }
+  const catLabel = CAT_CONFIG.find(c=>c.id===d.category)?.label || d.category;
+  const catIcon = CAT_CONFIG.find(c=>c.id===d.category)?.icon || '📦';
+  const isFuture = status === 'future';
+
+  const futureBadge = isFuture ? `<span class="future-badge">Tulossa</span>` : '';
+  const formattedDate = formatDateRange(d._dates.start, d._dates.end, d._dates.isAsti);
+  const bundleUnit = n > 1 ? `<span class="price-unit">/${n} kpl</span>` : '';
+  const displayName = d.name.toLowerCase()
+    .split(' ').map(w => ['g','kg','ml','kpl','l','cl','dl','x','st','pkt','pk','lpl','kpl/pkt','ja','tai','sekä','sekä','vai','eli'].includes(w) ? w : w.charAt(0).toUpperCase()+w.slice(1)).join(' ')
+    .replace(/(\d+[,.]?\d*)\s*(G|Kg|Ml|Kpl|L|Cl|Dl|St|Pkt|Pk)\b/g, (m, num, unit) => num + unit.toLowerCase())
+    .replace(/\b(Ml|Kpl|Pkt|Kg|Cl|Dl)\b/g, u => u.toLowerCase())
+    .replace(n > 1 ? new RegExp(`\\b${n}\\s*kpl\\b`, 'i') : /(?!)/, '').trim()
+    // Non-breaking space before trailing size so "300 g" never orphans alone
+    .replace(/\s(\d[\d,.-]*(?:\s*[-–]\s*\d[\d,.]*)?)\s+(g|kg|ml|l|cl|dl|kpl|pkt)(\s*\.?)$/i, '&nbsp;$1&nbsp;$2$3');
+  const calcDiscMax = (d.original_price_max && d.original_price_max !== d.original_price && dp)
+    ? Math.floor((1 - dp / (d.original_price_max * n)) * 100)
+    : null;
+  const discMax = (d.discount_percent_max && d.discount_percent_max !== d.discount_percent)
+    ? d.discount_percent_max
+    : calcDiscMax;
+  const discBadgeText = d.is_baseline
+    ? `-${Math.abs(d.discount_percent||0)}%*`
+    : discMax && discMax !== d.discount_percent
+      ? `-${Math.abs(d.discount_percent)}–${Math.abs(discMax)}%`
+      : `-${Math.abs(d.discount_percent||0)}%`;
+
+  // Split price into euros and cents for retail display
+  const formatPrice = (val) => {
+    const [euros, cents] = val.toFixed(2).split('.');
+    const unit = n > 1 ? `<span class="price-unit">/${n} kpl</span>` : `<span class="price-unit">/kpl</span>`;
+    return `<span class="price-now">
+      <span class="price-euros">${euros}</span><span class="price-cents-wrap"><span class="price-cents">${cents}</span>${unit}</span>
+    </span>`;
+  };
+  const hasPackWeight = /\b\d+\s*g\b/i.test(d.name);
+  const packGrams = hasPackWeight ? parseFloat(d.name.match(/\b(\d+)\s*g\b/i)?.[1]) : null;
+  const isPerKg = (d.is_baseline && !hasPackWeight) || (d.price_per_kg && Math.abs(d.price - d.price_per_kg) < 0.01) || /\birto\b/i.test(d.name);
+  const priceStr = d.is_category_sale
+    ? null
+    : isPerKg
+      ? (() => {
+          const [euros, cents] = dp.toFixed(2).split('.');
+          return `<span class="price-now"><span class="price-euros">${euros}</span><span class="price-cents-wrap"><span class="price-cents">${cents}</span><span class="price-unit">/kg</span></span></span>`;
+        })()
+      : formatPrice(dp);
+  const origMax = d.original_price_max ? d.original_price_max * n : null;
+  const origStr = (!d.is_category_sale && !isPerKg && od)
+    ? (origMax && Math.abs(origMax - od) > 0.01
+        ? `(norm. ${od}–${origMax.toFixed(2)} €)`
+        : `(norm. ${od} €)`)
+    : null;
+  const priceExtra = d.is_category_sale
+    ? `<span class="category-sale-label">Kampanjahinta — katso myymälästä</span>`
+    : isPerKg
+      ? (d.baseline_kg_price
+          ? `<span class="prisma-ref">vs Prisma ~${d.baseline_kg_price.toFixed(2)} €/kg</span>`
+          : (od
+              ? `<span class="orig-price">${
+                  origMax && Math.abs(origMax - od) > 0.01
+                    ? `(norm. ${od}–${origMax.toFixed(2)} €/kg)`
+                    : `(norm. ${od} €/kg)`
+                }</span>`
+              : ''))
+      : d.is_baseline && d.baseline_kg_price && packGrams
+      ? `<span class="prisma-ref">vs Prisma ~${(d.baseline_kg_price * packGrams / 1000).toFixed(2)} €/${packGrams}g</span>`
+      : (origStr ? `<span class="orig-price">${origStr}</span>` : '');
+
+  const hasLeaflet = lf && lf !== '#';
+  const dk = dealKey(d);
+  const isSaved = savedDeals.has(dk);
+  return `<div class="deal-card cat-${d.category}${isFuture ? ' future' : ''}${hasLeaflet ? ' clickable' : ''}" data-image-url="${d.image_url||''}" data-image-crop="${d.image_crop ? JSON.stringify(d.image_crop) : ''}" data-leaflet-url="${lf||''}" data-page="${d.page_number||''}"${hasLeaflet ? ` onclick="openDealModal(this)"` : ''}>
+    ${renderCardImage(d, lf)}
+    <button type="button" class="card-save-btn${isSaved ? ' saved' : ''}" onclick="event.stopPropagation(); toggleSaved(this, ${dk})" aria-label="Tallenna tarjous">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+    </button>
+    <div class="card-top">
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+        <span class="disc-badge ${discClass(d.discount_percent_max||d.discount_percent||0)}">${discBadgeText}</span>
+        ${futureBadge}
+      </div>
+      <span class="card-name">${displayName}</span>
+    </div>
+    <div class="card-price">
+      ${priceStr ? `<div>${priceStr}</div>` : ''}
+      ${priceExtra}
+    </div>
+    <div class="card-footer">
+      <span class="card-date">${formattedDate||''}</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-size:14px;line-height:1;" title="${catLabel||''}">${document.getElementById('sel-group')?.value === 'cat' ? '' : catIcon}</span>
+        ${document.getElementById('sel-group')?.value !== 'store' ? `
+        <div class="store-logo-wrap ${d.displayStore==='K-Citymarket'?'kcm':d.displayStore==='K-Supermarket'?'ksm':''}">
+          <img class="store-logo" src="${d.displayStore==='Tokmanni' ? TOKMANNI_LOGO : `https://www.google.com/s2/favicons?domain=${STORE_DOMAIN[d.displayStore]||'google.com'}&sz=32`}" alt="${d.displayStore}" title="${d.displayStore}">
+        </div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── GROUP HEADER ──
+const ICO = `<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10L10 2M10 2H5M10 2V7"/></svg>`;
+
+function groupHeaderHTML(key, count, groupMode, items) {
+  let leafletBtns = '';
+  if (groupMode==='store') {
+    // For Tokmanni which has two leaflets, use STORE_LEAFLETS
+    // For others, use the actual leaflet_url from the first deal (has the correct weekly slug)
+    const storeLinks = STORE_LEAFLETS[key]||[];
+    if (key === 'Tokmanni' && storeLinks.length > 1) {
+      leafletBtns = `<div class="leaflet-links">${storeLinks.map(l=>`<a class="leaflet-btn" href="${l.url}" target="_blank">${l.label} ${ICO}</a>`).join('')}</div>`;
+    } else {
+      // Use the leaflet_url from the first deal that has one
+      const firstDealUrl = items?.find(d => d.leaflet_url)?.leaflet_url;
+      const url = firstDealUrl || storeLinks[0]?.url;
+      if (url) {
+        // Strip page anchor for the header link — just open the leaflet root
+        const rootUrl = url.replace(/#.*$/, '');
+        leafletBtns = `<div class="leaflet-links"><a class="leaflet-btn" href="${rootUrl}" target="_blank">Avaa lehti ${ICO}</a></div>`;
+      }
+    }
+  }
+  return `<div class="group-header">
+    <span class="group-title">${key}</span>
+    <span class="group-badge">${count}</span>
+    <button type="button" class="show-all-btn" onclick="toggleExpand(this)">Näytä kaikki</button>
+    ${leafletBtns}
+  </div>`;
+}
+function toggleExpand(btn) {
+  const block = btn.closest('.group-block');
+  const expanded = block.classList.toggle('expanded');
+  btn.textContent = expanded ? 'Näytä vähemmän' : 'Näytä kaikki';
+  if (expanded) { block.classList.remove('has-more'); block.classList.remove('has-prev'); }
+}
+
+// ── RENDER ──
+function render() {
+  const deals     = getSorted(getFiltered());
+  updateStats(deals);
+  const groups    = getGrouped(deals);
+  const groupMode = document.getElementById('sel-group').value;
+  const content   = document.getElementById('content');
+  content.dataset.groupMode = groupMode;
+
+  if (!deals.length) {
+    content.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>Ei tarjouksia valituilla suodattimilla.</p></div>';
+    return;
+  }
+  let html='';
+  Object.entries(groups).forEach(([key,items])=>{
+    const hdr = (groupMode!=='none'&&key) ? groupHeaderHTML(key,items.length,groupMode,items) : '';
+    html+=`<div class="group-block">${hdr}<div class="deal-grid">${items.map(cardHTML).join('')}</div><button type="button" class="scroll-hint-btn scroll-prev" onclick="scrollRowBackward(this)" aria-label="Vieritä taaksepäin">&lsaquo;</button><button type="button" class="scroll-hint-btn scroll-next" onclick="scrollRowForward(this)" aria-label="Vieritä lisää">&rsaquo;</button></div>`;
+  });
+  content.innerHTML=html;
+  initCarouselHints();
+}
+
+// ── CAROUSEL "MORE ITEMS" HINT ──
+// Shows a fade+arrow on a row's right edge only when it actually has more
+// cards than fit, and hides it once scrolled to the end.
+function initCarouselHints() {
+  document.querySelectorAll('.deal-grid').forEach(grid => {
+    const wrap = grid.closest('.group-block');
+    if (!wrap) return;
+    const check = () => {
+      if (wrap.classList.contains('expanded')) { wrap.classList.remove('has-more'); wrap.classList.remove('has-prev'); return; }
+      const hasOverflow = grid.scrollWidth > grid.clientWidth + 4;
+      const atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 4;
+      const atStart = grid.scrollLeft <= 4;
+      wrap.classList.toggle('has-more', hasOverflow && !atEnd);
+      wrap.classList.toggle('has-prev', hasOverflow && !atStart);
+    };
+    check();
+    grid.addEventListener('scroll', check, { passive:true });
+  });
+}
+window.addEventListener('resize', initCarouselHints);
+function scrollRowForward(btn) {
+  const grid = btn.closest('.group-block')?.querySelector('.deal-grid');
+  if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll('.deal-card'));
+  const viewRight = grid.scrollLeft + grid.clientWidth;
+  // The first card that isn't fully visible yet (it's the one currently peeking) —
+  // move it to become the new first card, with no gap and no overlap.
+  const next = cards.find(c => c.offsetLeft + c.offsetWidth > viewRight + 1);
+  grid.scrollTo({ left: next ? next.offsetLeft : grid.scrollWidth, behavior: 'smooth' });
+}
+function scrollRowBackward(btn) {
+  const grid = btn.closest('.group-block')?.querySelector('.deal-grid');
+  if (!grid) return;
+  const cards = Array.from(grid.querySelectorAll('.deal-card'));
+  if (!cards.length) return;
+  let firstVisibleIdx = cards.findIndex(c => c.offsetLeft >= grid.scrollLeft - 1);
+  if (firstVisibleIdx === -1) firstVisibleIdx = cards.length - 1;
+  const cardWidth = cards[0].getBoundingClientRect().width;
+  const gap = parseFloat(getComputedStyle(grid).gap) || 14;
+  const perPage = Math.max(1, Math.floor((grid.clientWidth + gap) / (cardWidth + gap)));
+  const targetIdx = Math.max(0, firstVisibleIdx - perPage);
+  grid.scrollTo({ left: cards[targetIdx].offsetLeft, behavior: 'smooth' });
+}
+
+// ── DEAL PREVIEW MODAL ──
+function openDealModal(cardEl) {
+  const leafletUrl = cardEl.dataset.leafletUrl;
+  if (!leafletUrl || leafletUrl === '#') return;
+  const modal = document.getElementById('deal-modal');
+  const name = cardEl.querySelector('.card-name')?.innerHTML || '';
+  const priceHTML = cardEl.querySelector('.card-price')?.innerHTML || '';
+  const imgHTML = cardEl.querySelector('.card-img-wrap')?.innerHTML || '';
+  const dateStr = cardEl.querySelector('.card-date')?.textContent || '';
+  const storeImg = cardEl.querySelector('.store-logo');
+  const storeName = storeImg ? storeImg.title || storeImg.alt : '';
+  modal.querySelector('.deal-modal-img').innerHTML = imgHTML;
+  modal.querySelector('.deal-modal-name').innerHTML = name;
+  modal.querySelector('.deal-modal-price').innerHTML = priceHTML;
+  modal.querySelector('.deal-modal-meta').textContent = [storeName, dateStr].filter(Boolean).join(' · ');
+  document.getElementById('deal-modal-cta').href = leafletUrl;
+  modal.classList.add('open');
+  document.body.classList.add('modal-open');
+}
+function closeDealModal() {
+  document.getElementById('deal-modal').classList.remove('open');
+  document.body.classList.remove('modal-open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDealModal(); });
+
+// ── SAVED DEALS (session-only) ──
+function toggleSaved(btn, key) {
+  if (savedDeals.has(key)) { savedDeals.delete(key); btn.classList.remove('saved'); btn.querySelector('svg').setAttribute('fill','none'); }
+  else { savedDeals.add(key); btn.classList.add('saved'); btn.querySelector('svg').setAttribute('fill','currentColor'); }
+  updateSavedCounter();
+  if (showOnlySaved) render();
+}
+function updateSavedCounter() {
+  document.getElementById('saved-counter').textContent = savedDeals.size;
+  document.getElementById('saved-counter-wrap').classList.toggle('has-items', savedDeals.size > 0);
+}
+function toggleSavedFilter() {
+  showOnlySaved = !showOnlySaved;
+  document.getElementById('saved-counter-wrap').classList.toggle('active', showOnlySaved);
+  render();
+}
+
+// ── MOBILE ──
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+document.addEventListener('click',e=>{
+  const sb=document.getElementById('sidebar'),btn=document.getElementById('mob-btn');
+  if(window.innerWidth<=720&&sb.classList.contains('open')&&!sb.contains(e.target)&&e.target!==btn)
+    sb.classList.remove('open');
+});
+</script>
+
+<footer style="margin-left:var(--sidebar-w);padding:24px 32px;border-top:1px solid var(--border);background:var(--surface);">
+  <p style="font-size:11px;color:var(--hint);text-align:center;line-height:1.6;">
+    Kaikki tällä sivulla esitetyt tuotekuvat ja sisältö ovat kyseisten vähittäiskauppiaiden omaisuutta.
+    Tämä sivusto ei ole virallisesti sidoksissa mihinkään kauppaketjuun eikä edusta niitä.
+  </p>
+</footer>
+
+</body>
+</html>
