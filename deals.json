@@ -57,7 +57,7 @@
       "baseline_kg_price": null,
       "page_number": "7",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://elonen.fi/media/kanelisuklaa-pikkuleipa-tasangon-688x1024.png"
+      "image_url": "https://elonen.fi/media/kanelisuklaa-pikkuleipa-tasangon-scaled.png"
     },
     {
       "name": "GARNIER SKIN ACTIVE KOSTEUSVOIDE SORBET VITAMIN C TAI HYALURON 85 ml",
@@ -115,7 +115,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Ruokasanomat/",
-      "image_url": "https://www.atria.fi/contentassets/8a36906f37a64e13bbeda84d68cabd90/atria-murea-savukinkku_8156.png?preset=small",
+      "image_url": "https://www.atria.fi/contentassets/d7bd62e4c52146e4a5af336a43872adc/atria-kanan-paistivarras-classic-bbq_1399.png?preset=half",
       "is_category_offer": false
     },
     {
@@ -135,7 +135,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Ruokasanomat/",
-      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/6407800022234",
+      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/6407800022234?w=700&h=390&fit=max&auto=format&fm=jpg&cs=srgb",
       "is_category_offer": false
     },
     {
@@ -155,7 +155,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Ruokasanomat/",
-      "image_url": "https://www.hk.fi/cdn-cgi/image/width=570,format=auto,/globalassets/emmi/finland/tuotekuvat/tuotemerkit/hk/6162-poprilli-400-g-20250312224336.png",
+      "image_url": "https://imageproxy.wolt.com/assets/6a5acff75eefd6a87cbde4f0",
       "is_category_offer": false
     },
     {
@@ -195,7 +195,7 @@
       "baseline_kg_price": null,
       "page_number": "15",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_800,w_800/d_default.png/5000184321064.jpg",
+      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_328,w_328/d_default.png/8712566175130.png",
       "is_category_offer": false
     },
     {
@@ -235,7 +235,7 @@
       "baseline_kg_price": null,
       "page_number": "7",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_800,w_800/d_default.png/8712561488280.png",
+      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_800,w_800/d_default.png/8712561571333.jpg",
       "is_category_offer": false
     },
     {
@@ -275,7 +275,7 @@
       "baseline_kg_price": null,
       "page_number": "7",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://lumene.com/cdn/shop/files/297_bfb209dc-85fc-4599-937b-884adaec59ca.jpg?v=1750903242&width=360",
+      "image_url": "http://fi.lumene.com/cdn/shop/files/297_509a2e8d-2969-43e8-8246-1f164dbdf55d.jpg?v=1704165945&width=3000",
       "is_category_offer": false
     },
     {
@@ -295,7 +295,7 @@
       "baseline_kg_price": null,
       "page_number": "7",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://fi.lumene.com/cdn/shop/files/297_509a2e8d-2969-43e8-8246-1f164dbdf55d.jpg?v=1704165945&width=1600",
+      "image_url": "https://fi.lumene.com/cdn/shop/files/297_bc6f8583-9edd-473c-9310-85db7929f173.jpg?v=1704166342&width=1600",
       "is_category_offer": false
     },
     {
@@ -395,7 +395,7 @@
       "baseline_kg_price": null,
       "page_number": "6",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_328,w_328/d_default.png/6423800035111.jpg",
+      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_800,w_800/d_default.png/6423800035111.jpg",
       "is_category_offer": false
     },
     {
@@ -515,7 +515,7 @@
       "baseline_kg_price": null,
       "page_number": "14",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://www.puuilo.fi/media/catalog/product/1/0/10154724403640363e5cc4ce054d2ffc6455e6c05418e904dfe8_Tamforce_OBFA_starttipakkaus_4Ah_pikalaturi_kopiopng.png?optimize=high&bg-color=255,255,255&fit=bounds&height=&width=&format=jpeg",
+      "image_url": "https://imageproxy.wolt.com/assets/6a485acaed89a4a0849e0c40",
       "is_category_offer": false
     },
     {
@@ -635,7 +635,7 @@
       "baseline_kg_price": null,
       "page_number": "14",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://www.sinebrychoff.fi/media/slsiafit/fi_mcc_battery_33cl_jungled_768x1152_adobe_rgb.png?height=440&mode=max",
+      "image_url": "https://www.sinebrychoff.fi/media/ipud3wid/battery_pixie_wild_berries_1920p.png?height=440&mode=max",
       "is_category_offer": false
     },
     {
@@ -675,7 +675,7 @@
       "baseline_kg_price": null,
       "page_number": "14",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_328,w_328/d_default.png/7622202040900.png",
+      "image_url": "https://imageproxy.wolt.com/assets/6a49ac8c1f475118f870cf36",
       "is_category_offer": false
     },
     {
@@ -695,7 +695,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://www.saastokuoppa.fi/storage/product_images/5/omopyykinpesuneste26lcolorsensitive_8720181202735_1c0fd5f45e89_1.webp",
+      "image_url": "https://cdn.s-cloud.fi/v1/w1440_q60/assets/dam-id/9zyXl7q2KCN88F9UhZkfgZ.webp",
       "is_category_offer": false
     },
     {
@@ -715,7 +715,7 @@
       "baseline_kg_price": null,
       "page_number": "14",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://www.cloetta.fi/wp-content/uploads/sites/2/2025/11/06420256014134_C1N1.jpg",
+      "image_url": "https://www.cloetta.fi/wp-content/uploads/sites/2/2025/10/06420256911181_C1N1-1.jpg",
       "is_category_offer": false
     },
     {
@@ -735,7 +735,7 @@
       "baseline_kg_price": null,
       "page_number": "6",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_800,w_800/d_default.png/6419860865966.png",
+      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_328,w_328/d_default.png/6419860865966.png",
       "is_category_offer": false
     },
     {
@@ -755,7 +755,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/6413601004300?w=700&h=390&fit=max&auto=format&fm=jpg&cs=srgb",
+      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/6413601004300?w=1200&h=630&fm=jpg&q=80&fit=fill&bg=ffffff",
       "is_category_offer": false
     },
     {
@@ -775,7 +775,7 @@
       "baseline_kg_price": null,
       "page_number": "6",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_328,w_328/d_default.png/6438114862261.jpg",
+      "image_url": "https://res.cloudinary.com/tokmanni/image/upload/c_pad,b_white,f_auto,h_800,w_800/d_default.png/6438114862261_2.jpg",
       "is_category_offer": false
     },
     {
@@ -815,7 +815,7 @@
       "baseline_kg_price": null,
       "page_number": "14",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://www.kinder.com/mx/sites/kinder_mx/files/10-bars-v2.png?t=1781725920",
+      "image_url": "https://www.kinder.com/mx/sites/kinder_mx/files/10-bars-v2.png?t=1785487835",
       "is_category_offer": false
     },
     {
@@ -875,7 +875,7 @@
       "baseline_kg_price": null,
       "page_number": "6",
       "leaflet_url": "https://tarjoussanomat.tokmanni.fi/Tarjoussanomat/",
-      "image_url": "https://cdn.s-cloud.fi/v1/w384_q60/assets/dam-id/DMMkFmcha_gBpIEi2ra0r2.webp",
+      "image_url": "REPLACE_ME",
       "is_category_offer": false
     },
     {
@@ -895,7 +895,7 @@
       "baseline_kg_price": null,
       "page_number": "3",
       "leaflet_url": "https://view.publitas.com/rusta-kuvasto/dm-2629-fi",
-      "image_url": "https://www.hintakaari.fi/storage/product_images/3/tuotesivu_axeantiperspiranttideoroll-on50mlepicfresh_8720181266713_83d2556348db_1.webp",
+      "image_url": "https://www.hintakaari.fi/storage/product_images/8/axeantiperspiranttideoroll-on50mlblack_8720181266638_04e43c4d3b52_1.webp",
       "is_category_offer": false
     },
     {
@@ -975,7 +975,7 @@
       "baseline_kg_price": null,
       "page_number": "2",
       "leaflet_url": "https://view.publitas.com/rusta-kuvasto/dm-2629-fi",
-      "image_url": "https://www.shopping4net.fi/Common/PCCs/Products/Grpx/C4Net/Img-CLDBQ-L7-500-XX-XX-small.jpg",
+      "image_url": "https://www.shopping4net.fi/Common/PCCs/Products/Grpx/C4Net/Img-CLDBO-L7-500-XX-XX-small.jpg",
       "is_category_offer": false
     },
     {
@@ -1055,7 +1055,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://view.publitas.com/rusta-kuvasto/dm-2629-fi",
-      "image_url": "https://www.saastokuoppa.fi/storage/product_images/4/tuotesivu_axesuihkugeelidarktemptation400ml_8710447284094_efeadcbaa3c5_1.webp",
+      "image_url": "https://www.puuilo.fi/media/catalog/product/1/0/10164361b222b222b8f6b1a45f5654d4d5a44204632a8ae3def8_871044728409401png.png?optimize=high&bg-color=255,255,255&fit=bounds&height=&width=&format=jpeg",
       "is_category_offer": false
     },
     {
@@ -1155,7 +1155,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://view.publitas.com/rusta-kuvasto/dm-2629-fi",
-      "image_url": "https://kodintavaratalo.fi/assets/shop/images/items/f63f/surf-pyykinpesuneste-920ml-lily-ylang-t732997-1.jpeg",
+      "image_url": "https://www.puuilo.fi/media/catalog/product/1/0/10152489444c444c022bf218bc598090f3320eac7bf5843b23d8_omo_color_920mlpng.png?optimize=high&bg-color=255,255,255&fit=bounds&height=300&width=300&canvas=300:300&format=jpeg&dpr=1",
       "is_category_offer": false
     },
     {
@@ -1175,7 +1175,7 @@
       "baseline_kg_price": null,
       "page_number": "2",
       "leaflet_url": "https://view.publitas.com/rusta-kuvasto/dm-2629-fi",
-      "image_url": "https://static.sweetcare.com/img/prd/488/v-638826455371925487/biotherm-024117bh_01.webp",
+      "image_url": "https://static.sweetcare.com/img/prd/488/v-638827472223633888/biotherm-024144bh_01.webp",
       "is_category_offer": false
     },
     {
@@ -1235,7 +1235,7 @@
       "baseline_kg_price": null,
       "page_number": "15",
       "leaflet_url": "https://kampanjat.puuilo.fi/260622_vko26_digi",
-      "image_url": "https://www.puuilo.fi/media/catalog/product/1/0/1015536826bd26bd57696fc4ff71599326b8289d3cbfe140d239_Bergen_yleispuhdistusliinatpng.png?width=200&height=200&canvas=200,200&optimize=high&fit=bounds",
+      "image_url": "REPLACE_ME",
       "is_category_offer": false
     },
     {
@@ -1355,7 +1355,7 @@
       "baseline_kg_price": null,
       "page_number": "18",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/8593893007437",
+      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/5900020030405",
       "is_category_offer": false
     },
     {
@@ -1737,7 +1737,7 @@
       "baseline_kg_price": null,
       "page_number": "7",
       "leaflet_url": "https://www.lidl.fi/l/fi/tarjouslehdet/koko-suomen-tarjoukset-to-6-8-ke-12-8/view/flyer/page/",
-      "image_url": "https://www.fazer.com/globalassets/fazer.com/products/images/404204_remix_cats_400g_2000x2000.png",
+      "image_url": "https://www.fazer.com/globalassets/fazer.com/products/images/405150_remix_mokkimix_300g_2000x2000.png",
       "is_category_offer": false
     },
     {
@@ -2019,7 +2019,7 @@
       "baseline_kg_price": null,
       "page_number": "6",
       "leaflet_url": "https://www.lidl.fi/l/fi/tarjouslehdet/koko-suomen-tarjoukset-to-6-8-ke-12-8/view/flyer/page/",
-      "image_url": "https://imgv2-1-f.scribdassets.com/img/document/448374211/original/9c58651c6c/1?v=1",
+      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/6409400019911?w=700&h=390&fit=max&auto=format&fm=jpg&cs=srgb",
       "is_category_offer": false
     },
     {
@@ -2080,7 +2080,7 @@
       "baseline_kg_price": null,
       "page_number": "18",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://assets.unileversolutions.com/v1/58529313.png",
+      "image_url": "https://ingmanammattilaisille.fi/wp-content/uploads/2026/03/Ingman_OOH_1136x1184_Uutuus_Puikot_Magnum_Pistache-1.jpg",
       "is_category_offer": false
     },
     {
@@ -2180,7 +2180,7 @@
       "baseline_kg_price": null,
       "page_number": "15",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/6416453075870?w=700&h=390&fit=max&auto=format&fm=jpg&cs=srgb",
+      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/2001447100009?w=700&h=390&fit=max&auto=format&fm=jpg&cs=srgb",
       "is_category_offer": false
     },
     {
@@ -2440,7 +2440,7 @@
       "baseline_kg_price": null,
       "page_number": "1",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://www.puuilo.fi/media/catalog/product/1/0/101722488b7d8b7d762f176bc87c2148260dcc382d09d493d03f_08712561422031png.png?optimize=high&bg-color=255,255,255&fit=bounds&height=&width=&format=jpeg",
+      "image_url": "https://www.puuilo.fi/media/catalog/product/1/0/10171952506150613a301b720cbce79c8a7397a74a29bd7676e3_08720181861550png.png?optimize=high&bg-color=255,255,255&fit=bounds&height=&width=&format=jpeg",
       "is_category_offer": false
     },
     {
@@ -2480,7 +2480,7 @@
       "baseline_kg_price": null,
       "page_number": "16",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/5411188110835?w=700&h=390&fit=max&auto=format&fm=jpg&cs=srgb",
+      "image_url": "https://www.alpro.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2Fs64jgdakkdiy%2F3iSOa5sgqOR1a1XuDIipmf%2F2a4b824894991809e0fe9a55957f8cf2%2Fwebimage-151A720B-807C-4438-9FC04175ACA586ED.png&w=1920&q=75",
       "is_category_offer": false
     },
     {
@@ -2721,7 +2721,7 @@
       "baseline_kg_price": null,
       "page_number": "13",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://www.k-ruoka.fi/assets/b-31966/img/brand-assets/kcm_box.svg",
+      "image_url": "https://www.k-ruoka.fi/assets/b-31966/img/kruoka-sovellus.svg",
       "is_category_offer": false
     },
     {
@@ -2781,7 +2781,7 @@
       "baseline_kg_price": null,
       "page_number": "18",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/8593893007437",
+      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/5900020030405",
       "is_category_offer": false
     },
     {
@@ -2821,7 +2821,7 @@
       "baseline_kg_price": null,
       "page_number": "11",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://cdn.s-cloud.fi/v1/w1440_q60/assets/dam-id/4O_t48MOaGE8BTMFNWmKfv.webp",
+      "image_url": "https://www.k-ruoka.fi/assets/b-31966/img/offer-brochure/kcm1.jpg",
       "is_category_offer": false
     },
     {
@@ -2901,7 +2901,7 @@
       "baseline_kg_price": null,
       "page_number": "16",
       "leaflet_url": "https://kcm-tarjouslehdet.k-ruoka.fi/64v8v8m_tarjouslehti_32LV_KCM/index.html",
-      "image_url": "https://public.keskofiles.com/f/k-ruoka/product/6430015533455?w=700&h=390&fit=max&auto=format&fm=jpg&cs=srgb",
+      "image_url": "https://www.fazer.fi/globalassets/productimages/aito_barista_1l_93215_web_562160.png?preset=default",
       "is_category_offer": false
     },
     {
@@ -3521,7 +3521,7 @@
       "baseline_kg_price": null,
       "page_number": null,
       "leaflet_url": "https://ksm-lehdet.k-ruoka.fi/Uusimaa/",
-      "image_url": "REPLACE_ME",
+      "image_url": "https://imageproxy.wolt.com/assets/6a2dfc79ce4bcdc55dc9d5b6",
       "is_category_offer": false
     },
     {
