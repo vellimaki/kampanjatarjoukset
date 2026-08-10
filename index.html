@@ -231,9 +231,17 @@ body {
   box-shadow:0 1px 3px rgba(43,38,32,0.05); touch-action:manipulation;
 }
 .deal-card > .card-img-wrap { border-radius:20px 20px 0 0; overflow:hidden; }
-.deal-card:hover { transform:translateY(-4px); box-shadow:0 14px 28px -12px rgba(43,38,32,0.2); border-color:var(--border2); }
 .deal-card.clickable { cursor:pointer; }
-.deal-card.clickable:hover { border-color:var(--accent); }
+
+/* Hover lift/shadow only for devices that actually have a mouse -- on
+   touchscreens (especially iOS Safari), tapping a card to open the modal
+   or scroll near it can leave the card "stuck" in its hovered state until
+   the user taps elsewhere. Scoping this to (hover: hover) keeps the
+   animation on desktop while touch devices never trigger it at all. */
+@media (hover: hover) {
+  .deal-card:hover { transform:translateY(-4px); box-shadow:0 14px 28px -12px rgba(43,38,32,0.2); border-color:var(--border2); }
+  .deal-card.clickable:hover { border-color:var(--accent); }
+}
 
 .deal-card.future { border-color:#e2d3f5; }
 
@@ -348,6 +356,12 @@ body.modal-open { overflow:hidden; }
   .deal-modal-price { margin-bottom:14px; }
   .content { padding:16px 16px 20px; }
   .group-block { margin-bottom:24px; }
+  /* Narrower cards so two fit fully in view on common phone widths
+     (calculated against actual mobile padding: fits on 390px+ screens
+     with room to spare, very close on the smallest 360px devices) --
+     the scroll arrow is then the clear "more to see" cue, rather than
+     relying on an ambiguous partial third card peeking in at the edge. */
+  .deal-card { width:140px; }
 }
 
 ::-webkit-scrollbar { width:6px; }
@@ -972,7 +986,12 @@ function renderCardImage(d, leafletUrl) {
   const catIcon = CAT_CONFIG.find(c=>c.id===d.category)?.icon || '📦';
 
   // 1. Direct image URL from Open Food Facts or Lidl page thumbnail
-  if (d.image_url) {
+  //    Explicitly reject the backend placeholder string -- "REPLACE_ME" is
+  //    truthy, so without this check the browser would try to load it as
+  //    a real image src, hit a network 404, and only then fall back via
+  //    onerror. Skipping it here renders the placeholder instantly with
+  //    zero network requests, which matters across a full page of deals.
+  if (d.image_url && d.image_url !== 'REPLACE_ME') {
     return `<div class="card-img-wrap">
       <img src="${d.image_url}" alt="${d.name}" loading="lazy" onerror="this.parentNode.innerHTML='<span class=card-img-placeholder>${catIcon}</span>'">
     </div>`;
@@ -994,8 +1013,28 @@ function cardHTML(d) {
     const discBadgeText = discMax
       ? `-${Math.abs(d.discount_percent||0)}–${Math.abs(discMax)}%`
       : `-${Math.abs(d.discount_percent||d.discount_percent_max||0)}%`;
+    // Build deep link URL with page anchor when available -- same logic
+    // as regular cards below, since category-wide offers were previously
+    // using just the raw baseUrl with no page fragment at all, so they
+    // never actually linked to the right page in the leaflet.
     const baseUrl = (d.leaflet_url && d.leaflet_url !== 'null') ? d.leaflet_url : ((STORE_LEAFLETS[d.displayStore]||[])[0]?.url || '#');
-    const lf = baseUrl || '#';
+    const pg = d.page_number;
+    let lf = baseUrl || '#';
+    if (pg && lf !== '#') {
+      if (lf.includes('kcm-tarjouslehdet') || lf.includes('ksm-lehdet')) {
+        lf = lf.replace(/#.*$/, '') + `#p=${pg}`;
+      } else if (lf.includes('tokmanni')) {
+        lf = lf.replace(/[?#].*$/, '') + `?page=${pg}`;
+      } else if (lf.includes('publitas.com')) {
+        const p1 = pg % 2 === 0 ? pg : pg - 1;
+        lf = lf.replace(/\/$/, '') + `/page/${p1 || 1}-${p1+1}`;
+      } else if (lf.includes('kampanjat.puuilo.fi')) {
+        const p1 = pg % 2 === 0 ? pg : pg - 1;
+        lf = lf.replace(/\/$/, '') + `/page/${p1 || 1}-${p1+1}`;
+      } else if (lf.includes('lidl.fi') && lf.includes('/view/flyer/page/')) {
+        lf = lf + pg;
+      }
+    }
     const hasLeaflet = lf && lf !== '#';
     const dk = dealKey(d);
     const isSaved = savedDeals.has(dk);
