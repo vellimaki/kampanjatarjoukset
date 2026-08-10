@@ -362,6 +362,21 @@ body.modal-open { overflow:hidden; }
      the scroll arrow is then the clear "more to see" cue, rather than
      relying on an ambiguous partial third card peeking in at the edge. */
   .deal-card { width:140px; }
+
+  /* Stores/Categories sections collapsed by default on mobile, so they
+     don't eat the whole first screen -- search, grouping toggle, and the
+     discount slider stay visible as before, untouched by this. */
+  .sidebar-label { cursor:pointer; }
+  .sidebar-chevron { display:inline-block; margin-left:4px; transition:transform 0.2s ease; font-size:10px; }
+  #stores-section .check-list, #cats-section .check-list {
+    max-height:0; overflow:hidden; margin-top:0; transition:max-height 0.25s ease;
+  }
+  #stores-section.open .check-list, #cats-section.open .check-list {
+    max-height:600px; margin-top:9px;
+  }
+  #stores-section.open .sidebar-chevron, #cats-section.open .sidebar-chevron {
+    transform:rotate(180deg);
+  }
 }
 
 ::-webkit-scrollbar { width:6px; }
@@ -380,18 +395,18 @@ body.modal-open { overflow:hidden; }
     </div>
 
     <!-- STORES -->
-    <div class="sidebar-section">
-      <div class="sidebar-label">
-        Kaupat
+    <div class="sidebar-section" id="stores-section">
+      <div class="sidebar-label" onclick="if (!event.target.closest(&quot;.sidebar-toggle&quot;)) toggleSidebarSection(this.parentElement)">
+        <span class="sidebar-label-text">Kaupat <span class="sidebar-chevron">▾</span></span>
         <span class="sidebar-toggle" id="toggle-stores-btn">Poista kaikki</span>
       </div>
       <div class="check-list" id="store-list"></div>
     </div>
 
     <!-- CATEGORIES -->
-    <div class="sidebar-section">
-      <div class="sidebar-label">
-        Kategoriat
+    <div class="sidebar-section" id="cats-section">
+      <div class="sidebar-label" onclick="if (!event.target.closest(&quot;.sidebar-toggle&quot;)) toggleSidebarSection(this.parentElement)">
+        <span class="sidebar-label-text">Kategoriat <span class="sidebar-chevron">▾</span></span>
         <span class="sidebar-toggle" id="toggle-cats-btn">Poista kaikki</span>
       </div>
       <div class="check-list" id="cat-list"></div>
@@ -1225,6 +1240,10 @@ function toggleExpand(btn) {
   const expanded = block.classList.toggle('expanded');
   btn.textContent = expanded ? 'Näytä vähemmän' : 'Näytä kaikki';
   if (expanded) { block.classList.remove('has-more'); block.classList.remove('has-prev'); }
+}
+
+function toggleSidebarSection(section) {
+  section.classList.toggle('open');
 }
 
 // ── RENDER ──
