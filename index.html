@@ -344,9 +344,19 @@ body.modal-open { overflow:hidden; }
 
 @media (max-width:900px) {
   .shell { display:flex; flex-direction:column; align-items:stretch; padding:0 16px 40px; }
-  .shell::before { font-size:36px; padding:36px 16px 0; }
-  .shell::after { font-size:14px; padding:10px 16px 20px; }
-  .sidebar { width:100%; position:static; max-height:none; }
+  /* grid-row has zero effect once .shell is flex, not grid -- order is the
+     flex equivalent, needed here to keep the same title -> tagline ->
+     search/sort -> discount slider -> filter chips -> sidebar -> results
+     sequence that grid-row already gives on desktop. Without this, ::after
+     (the tagline) falls back to rendering dead last, after every real
+     child including the entire results area. */
+  .shell::before { font-size:36px; padding:36px 16px 0; order:1; }
+  .shell::after { font-size:14px; padding:10px 16px 20px; order:2; }
+  .topbar { order:3; }
+  .disc-bar { order:4; }
+  .filter-chips { order:5; }
+  .sidebar { width:100%; position:static; max-height:none; order:6; }
+  .content { order:7; }
   .main { width:100%; }
   .reset-btn { position:static; margin-left:auto; box-shadow:none; }
   .deal-modal { max-width:100%; }
